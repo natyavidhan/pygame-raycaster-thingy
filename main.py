@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 from PIL import Image
 
 screen = pygame.display.set_mode((640, 480))
@@ -16,6 +16,21 @@ for y in range(img_height):
         val = mapimg.getpixel((x, y))
         if val == 0:
             gameMap.append([_x, _y])
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.angle = math.pi
+        self.speed = 3
+    
+    
+    def draw(self):
+        pygame.draw.line(screen, (255, 255, 255), (self.x, self.y), 
+                        (self.x - math.sin(self.angle) * 50,
+                        self.y + math.cos(self.angle) * 50), 1)
+        pygame.draw.circle(screen, (255, 0, 0), (int(self.x), int(self.y)), 8)
+
+player = Player(320, 240)
 
 while running:
     for event in pygame.event.get():
@@ -24,6 +39,22 @@ while running:
     screen.fill((0, 0, 0))
     for i in gameMap:
         pygame.draw.rect(screen, (255, 255, 255), (i[0], i[1], 8, 8))
+    
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_a]:
+        player.angle -= 0.1
+    if keys[pygame.K_d]:
+        player.angle += 0.1
+    if keys[pygame.K_w]:
+        player.x += -math.sin(player.angle) * player.speed
+        player.y += math.cos(player.angle) * player.speed
+    if keys[pygame.K_s]:
+        player.x += math.sin(player.angle) * player.speed
+        player.y += -math.cos(player.angle) * player.speed
+    
+    player.draw()
+
     pygame.display.flip()
     clock.tick(60)
 
