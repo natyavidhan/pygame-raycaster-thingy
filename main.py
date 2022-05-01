@@ -32,7 +32,7 @@ class Player:
         self.speed = 1
         self.fov = math.pi / 2
         self.max_depth = 640
-        self.casted_rays = 250
+        self.casted_rays = 120
 
     def draw(self):
         pygame.draw.line(
@@ -55,10 +55,12 @@ class Player:
             # pygame.draw.line(screen, (255, 255, 255), (self.x, self.y), (x, y), 1)
             start_angle += self.fov / self.casted_rays
         
-            wall_height = 21000 / depth + 0.0001
-            SCALE = (640 ) / self.casted_rays
-            pygame.draw.rect(screen, (255, 255, 255), (640 + ray * SCALE, (640 / 2) - wall_height / 2,
-                SCALE, wall_height))
+            color = 255 / (1 + depth * depth * 0.0001)
+            depth *= math.cos(self.angle - start_angle)
+            wall_height = 21000 / depth
+            SCALE = (640) / self.casted_rays
+            pygame.draw.rect(screen, (color, color, color), (640 + ray * SCALE, (640 / 2) - wall_height / 2,
+                SCALE+1, wall_height))
 
 
 player = Player(320, 240)
@@ -106,6 +108,8 @@ while running:
     )
 
     player.draw()
+    pygame.draw.rect(screen, (150, 150, 150), (640, 0, 640, 320))
+    pygame.draw.rect(screen, (100, 100, 100), (640, 320, 640, 320))
     player.cast_rays()
 
     pygame.display.flip()
