@@ -1,5 +1,6 @@
 import pygame, math
 from PIL import Image
+from numpy import interp
 
 pygame.init()
 pygame.font.init()
@@ -29,11 +30,11 @@ class Player:
         self.x = x
         self.y = y
         self.angle = math.pi
-        self.speed = 1
-        self.fov = math.pi / 2
+        self.speed = 3
+        self.fov = 90 * math.pi / 180
         self.max_depth = 640
         self.casted_rays = 120
-        self.STEPS = 3
+        self.STEPS = 1
 
     def draw(self):
         pygame.draw.line(
@@ -84,20 +85,22 @@ while running:
         x = 0
         y += 1
 
+    delta_time = interp(clock.get_fps(), [0, 120], [1, 0.1])
+
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a]:
-        player.angle -= 0.02
+        player.angle -= (0.04*delta_time)
     if keys[pygame.K_d]:
-        player.angle += 0.02
+        player.angle += (0.04*delta_time)
     if keys[pygame.K_w]:
-        nextX = player.x + -math.sin(player.angle) * player.speed
-        nextY = player.y + math.cos(player.angle) * player.speed
+        nextX = player.x + -math.sin(player.angle) * player.speed * delta_time
+        nextY = player.y + math.cos(player.angle) * player.speed * delta_time
         if pxData[int(nextY)][int(nextX)] == 0:
             player.x = nextX
             player.y = nextY
     if keys[pygame.K_s]:
-        nextX = player.x + math.sin(player.angle) * player.speed
-        nextY = player.y + -math.cos(player.angle) * player.speed
+        nextX = player.x + math.sin(player.angle) * player.speed * delta_time
+        nextY = player.y + -math.cos(player.angle) * player.speed * delta_time
         if pxData[int(nextY)][int(nextX)] == 0:
             player.x = nextX
             player.y = nextY
