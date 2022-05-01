@@ -13,17 +13,21 @@ pxData = []
 gameMap = []
 
 img = Image.open("map.png")
+large_img = Image.new("RGBA", (640, 640), (0, 0, 0, 255))
+
 for i in range(20):
     gameMap.append([])
     for j in range(20):
         gameMap[i].append(0 if img.getpixel((i, j)) == (0, 0, 0, 255) else 1)
+        for k in range(TILESIZE):
+            for l in range(TILESIZE):
+                large_img.putpixel((i * TILESIZE + k, j * TILESIZE + l), img.getpixel((i, j)))
 
-img = Image.open("map_large.png")
+
 for i in range(640):
     pxData.append([])
     for j in range(640):
-        pxData[i].append(1 if img.getpixel((i, j)) == (255, 255, 255, 255) else 0)
-
+        pxData[i].append(1 if large_img.getpixel((i, j)) == (255, 255, 255, 255) else 0)
 
 class Player:
     def __init__(self, x, y):
