@@ -56,8 +56,9 @@ class Player:
             for depth in range(self.max_depth//self.STEPS):
                 x = self.x - math.sin(start_angle) * (depth * self.STEPS)
                 y = self.y + math.cos(start_angle) * (depth * self.STEPS)
-                if pxData[int(y)][int(x)] == 1:
+                if pxData[int(x)][int(y)] == 1:
                     break
+            depth+= 0.0001 # to prevent division by zero
             pygame.draw.line(screen, (255, 255, 255), (self.x, self.y), (x, y), 1)
             start_angle += self.fov / self.casted_rays
         
@@ -83,7 +84,7 @@ while running:
                 pygame.draw.rect(
                     screen,
                     (0, 185, 185),
-                    (x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE),
+                    (y * TILESIZE, x * TILESIZE, TILESIZE, TILESIZE),
                 )
             x += 1
         x = 0
@@ -99,13 +100,13 @@ while running:
     if keys[pygame.K_w]:
         nextX = player.x + -math.sin(player.angle) * player.speed * delta_time
         nextY = player.y + math.cos(player.angle) * player.speed * delta_time
-        if pxData[int(nextY)][int(nextX)] == 0:
+        if pxData[int(nextX)][int(nextY)] == 0:
             player.x = nextX
             player.y = nextY
     if keys[pygame.K_s]:
         nextX = player.x + math.sin(player.angle) * player.speed * delta_time
         nextY = player.y + -math.cos(player.angle) * player.speed * delta_time
-        if pxData[int(nextY)][int(nextX)] == 0:
+        if pxData[int(nextX)][int(nextY)] == 0:
             player.x = nextX
             player.y = nextY
 
