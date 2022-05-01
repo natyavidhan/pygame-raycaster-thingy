@@ -8,29 +8,29 @@ pygame.display.set_caption("Pygame Raycaster")
 clock = pygame.time.Clock()
 running = True
 TILESIZE = 32
-
 pxData = []
 gameMap = []
+
 img = Image.open("map.png")
 for i in range(20):
     gameMap.append([])
     for j in range(20):
         gameMap[i].append(0 if img.getpixel((i, j)) == (0, 0, 0, 255) else 1)
 
-img = img.resize((img.size[0] * TILESIZE, img.size[1] * TILESIZE))
+img = Image.open("map_large.png")
 for i in range(640):
     pxData.append([])
     for j in range(640):
-        pxData[i].append(0 if img.getpixel((i, j)) == (0, 0, 0, 255) else 1)
+        pxData[i].append(1 if img.getpixel((i, j)) == (255, 255, 255, 255) else 0)
 
 class Player:
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.angle = math.pi
-        self.speed = 2
-        self.fov = math.pi / 3
-        self.max_depth = 1000
+        self.speed = 1
+        self.fov = math.pi / 2
+        self.max_depth = 640
         self.casted_rays = 120
     
     def draw(self):
@@ -47,20 +47,17 @@ class Player:
                         self.y + math.cos(self.angle - self.fov/2) * 50), 1)
     
     def cast_rays(self):
-        for i in range(self.casted_rays):
-            angle = self.angle - self.fov / 2 + self.fov / self.casted_rays * i
-            ray_x = self.x
-            ray_y = self.y
-            ray_length = 0
-            while ray_length < self.max_depth:
-                # print(ray_x, ray_y)
-                ray_x += -math.sin(angle)
-                ray_y += math.cos(angle)
-                ray_length += 1
-                if pxData[int(ray_x)][int(ray_y)] == 1:
+        start_angle = self.angle - self.fov / 2
+        for ray in range(self.casted_rays):
+            for depth in range(self.max_depth):
+                x = self.x - math.sin(start_angle) * depth
+                y = self.y + math.cos(start_angle) * depth
+                if x < TILESIZE or x > 640-TILESIZE or y < TILESIZE or y > 640-TILESIZE:
                     break
-            pygame.draw.line(screen, (0, 0, 255), (self.x, self.y),
-                            (ray_x, ray_y), 1)
+                if pxData[int(y)][int(x)] == 1:
+                    break
+            pygame.draw.line(screen, (255, 255, 255), (self.x, self.y), (x, y), 1)
+            start_angle += self.fov / self.casted_rays
 
 
 
@@ -71,21 +68,20 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     screen.fill((0, 0, 0))
-    
     x, y = 0, 0
     for _y in gameMap:
         for _x in _y:
             if _x == 1:
-                pygame.draw.rect(screen, (185, 185, 185), (x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE))
+                pygame.draw.rect(screen, (0, 185, 185), (x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE))
             x += 1
         x = 0
         y += 1
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a]:
-        player.angle -= 0.05
+        player.angle -= 0.02
     if keys[pygame.K_d]:
-        player.angle += 0.05
+        player.angle += 0.02
     if keys[pygame.K_w]:
         nextX = player.x + -math.sin(player.angle) * player.speed
         nextY = player.y + math.cos(player.angle) * player.speed
@@ -106,5 +102,5 @@ while running:
     player.cast_rays()
 
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(120)
 
