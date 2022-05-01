@@ -14,6 +14,7 @@ gameMap = []
 
 img = Image.open("map.png")
 large_img = Image.new("RGBA", (640, 640), (0, 0, 0, 255))
+background = pygame.image.load("background.png")
 
 for i in range(20):
     gameMap.append([])
@@ -33,7 +34,7 @@ class Player:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.angle = math.pi
+        self.angle = 315 * math.pi / 180
         self.speed = 3
         self.fov = 90 * math.pi / 180
         self.max_depth = 640
@@ -59,7 +60,7 @@ class Player:
                 if pxData[int(x)][int(y)] == 1:
                     break
             depth+= 0.0001 # to prevent division by zero
-            pygame.draw.line(screen, (255, 255, 255), (self.x, self.y), (x, y), 1)
+            pygame.draw.line(screen, (255, 0, 0), (self.x, self.y), (x, y), 1)
             start_angle += self.fov / self.casted_rays
         
             color = 255 / (1 + depth * depth * 0.0001)
@@ -70,33 +71,34 @@ class Player:
                 SCALE+1, wall_height))
 
 
-player = Player(320, 240)
+player = Player(40, 40)
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
     screen.fill((0, 0, 0))
+    screen.blit(background, (640, 0))
     x, y = 0, 0
     for _y in gameMap:
         for _x in _y:
             if _x == 1:
                 pygame.draw.rect(
                     screen,
-                    (0, 185, 185),
+                    (185, 185, 185),
                     (y * TILESIZE, x * TILESIZE, TILESIZE, TILESIZE),
                 )
             x += 1
         x = 0
         y += 1
 
-    delta_time = interp(clock.get_fps(), [0, 120], [1, 0.1])
+    delta_time = interp(clock.get_fps(), [0, 120], [2, 0.5])
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a]:
-        player.angle -= (0.04*delta_time)
+        player.angle -= (0.05*delta_time)
     if keys[pygame.K_d]:
-        player.angle += (0.04*delta_time)
+        player.angle += (0.05*delta_time)
     if keys[pygame.K_w]:
         nextX = player.x + -math.sin(player.angle) * player.speed * delta_time
         nextY = player.y + math.cos(player.angle) * player.speed * delta_time
@@ -117,8 +119,7 @@ while running:
     )
 
     player.draw()
-    pygame.draw.rect(screen, (150, 150, 150), (640, 0, 640, 320))
-    pygame.draw.rect(screen, (100, 100, 100), (640, 320, 640, 320))
+    pygame.draw.line(screen, (0, 0, 0), (639, 0), (639, 640), 3)
     player.cast_rays()
 
     pygame.display.flip()
