@@ -1,2 +1,2 @@
-# pygame-raytracing-thingy
-a raytracer for making doom like games
+# pygame-raycater-thingy
+a raycaster for making doom like games
