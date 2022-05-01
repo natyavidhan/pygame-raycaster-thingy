@@ -3,7 +3,7 @@ from PIL import Image
 
 pygame.init()
 pygame.font.init()
-screen = pygame.display.set_mode((1500, 640))
+screen = pygame.display.set_mode((1280, 640))
 pygame.display.set_caption("Pygame Raycaster")
 clock = pygame.time.Clock()
 running = True
@@ -32,7 +32,7 @@ class Player:
         self.speed = 1
         self.fov = math.pi / 2
         self.max_depth = 640
-        self.casted_rays = 120
+        self.casted_rays = 250
 
     def draw(self):
         pygame.draw.line(
@@ -50,17 +50,15 @@ class Player:
             for depth in range(self.max_depth):
                 x = self.x - math.sin(start_angle) * depth
                 y = self.y + math.cos(start_angle) * depth
-                if (
-                    x < TILESIZE
-                    or x > 640 - TILESIZE
-                    or y < TILESIZE
-                    or y > 640 - TILESIZE
-                ):
-                    break
                 if pxData[int(y)][int(x)] == 1:
                     break
-            pygame.draw.line(screen, (255, 255, 255), (self.x, self.y), (x, y), 1)
+            # pygame.draw.line(screen, (255, 255, 255), (self.x, self.y), (x, y), 1)
             start_angle += self.fov / self.casted_rays
+        
+            wall_height = 21000 / depth + 0.0001
+            SCALE = (640 ) / self.casted_rays
+            pygame.draw.rect(screen, (255, 255, 255), (640 + ray * SCALE, (640 / 2) - wall_height / 2,
+                SCALE, wall_height))
 
 
 player = Player(320, 240)
