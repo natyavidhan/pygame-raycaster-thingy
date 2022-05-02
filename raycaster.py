@@ -31,7 +31,7 @@ class Player:
     def cast_rays(self):
         start_angle = self.angle - self.fov / 2
         for ray in range(self.casted_rays):
-            for depth in range(self.max_depth//self.STEPS):
+            for depth in range(int(self.max_depth/self.STEPS)):
                 x = self.x - math.sin(start_angle) * (depth * self.STEPS)
                 y = self.y + math.cos(start_angle) * (depth * self.STEPS)
                 if self.raycaster.pxData[int(x)][int(y)] == 1:
@@ -39,8 +39,8 @@ class Player:
             depth+= 0.0001 # to prevent division by zero
             pygame.draw.line(self.screen, (255, 0, 0), (self.x, self.y), (x, y), 1)
             start_angle += self.fov / self.casted_rays
-        
-            color = 255 / (1 + depth * depth * 0.0001)
+            cdep = depth * self.STEPS
+            color = 255 / ((1 + cdep * cdep * 0.0001))
             depth *= math.cos(self.angle - start_angle)
             wall_height = 21000 / (depth * self.STEPS)
             SCALE = (640) / self.casted_rays
