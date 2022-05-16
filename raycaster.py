@@ -13,20 +13,9 @@ class Player:
         self.angle = 315 * math.pi / 180
         self.speed = 3
 
-    def draw(self, screen):
-        pygame.draw.line(
-            screen,
-            (255, 255, 255),
-            (self.x, self.y),
-            (self.x - math.sin(self.angle) * 50, self.y + math.cos(self.angle) * 50),
-            1,
-        )
-        pygame.draw.circle(screen, (255, 0, 0), (int(self.x), int(self.y)), 15)
-
-
 class Raycaster:
     def __init__(self, mapFile, player, fov=90):
-        self.screen = pygame.display.set_mode((1280, 640))
+        self.screen = pygame.display.set_mode((640, 640))
         pygame.display.set_caption("Pygame Raycaster")
         self.clock = pygame.time.Clock()
         self.running = True
@@ -75,22 +64,20 @@ class Raycaster:
                 y = self.player.y + math.cos(start_angle) * (depth * self.STEPS)
                 if self.pxData[int(x)][int(y)] == 1:
                     break
-            depth += 0.0001  # to prevent division by zero
-            pygame.draw.line(
-                self.screen, (255, 0, 0), (self.player.x, self.player.y), (x, y), 1
-            )
+            depth += 0.0001
+            
             start_angle += self.fov / self.casted_rays
             cdep = depth * self.STEPS
             color = 255 / ((1 + cdep * cdep * 0.0001))
 
             depth *= math.cos(self.player.angle - start_angle)
-            wall_height = 21000 / (depth)  # * self.STEPS)
+            wall_height = 21000 / (depth)
 
             pygame.draw.rect(
                 self.screen,
                 (color, color, color),
                 (
-                    640 + ray * SCALE,
+                    ray * SCALE,
                     (640 / 2) - wall_height / 2,
                     SCALE + 1,
                     wall_height,
@@ -107,24 +94,6 @@ class Raycaster:
 
             self.screen.fill((0, 0, 0))
             self.screen.blit(self.background, (640, 0))
-
-            x, y = 0, 0
-            for _y in self.gameMap:
-                for _x in _y:
-                    if _x == 1:
-                        pygame.draw.rect(
-                            self.screen,
-                            (185, 185, 185),
-                            (
-                                y * self.TILESIZE,
-                                x * self.TILESIZE,
-                                self.TILESIZE,
-                                self.TILESIZE,
-                            ),
-                        )
-                    x += 1
-                x = 0
-                y += 1
 
             delta_time = interp(self.clock.get_fps(), [0, 120], [2, 0.5])
 
@@ -166,7 +135,6 @@ class Raycaster:
                 (0, 0),
             )
 
-            self.player.draw(self.screen)
             pygame.draw.line(self.screen, (0, 0, 0), (639, 0), (639, 640), 3)
             self.cast_rays()
 
