@@ -21,6 +21,7 @@ class Raycaster:
         self.running = True
         self.pxData = []
         self.player = player
+        self.font =pygame.font.SysFont("comicsans", 26)
 
         self.fov = fov * math.pi / 180
         self.max_depth = 640
@@ -55,7 +56,6 @@ class Raycaster:
     def cast_rays(self):
         start_angle = self.player.angle - self.fov / 2
         rays = []
-        SCALE = (self.width) / self.casted_rays
 
         for ray in range(self.casted_rays):
             for depth in range(int(self.max_depth / self.STEPS)):
@@ -76,12 +76,15 @@ class Raycaster:
 
             depth *= math.cos(self.player.angle - start_angle)
             wall_height = 21000 / (depth)
-            rays.append([wall_height, color_dep, ray])
+            rays.append([wall_height, color_dep, ray, depth])
         #sort rays from shortest to longest
         rays.sort(key=lambda x: x[0])
-        
+        return rays
+
+    def load_walls(self, rays):
+        SCALE = (self.width) / self.casted_rays
         for ray in range(self.casted_rays):
-            wall_height, color_dep, num = rays[ray]
+            wall_height, color_dep, num, depth = rays[ray]
             pygame.draw.rect(
                 self.screen,
                 tuple(color_dep),
@@ -92,6 +95,32 @@ class Raycaster:
                     wall_height,
                 ),
             )
+
+    def debug_screen(self, rays):
+        player_val = f"Player: x: {self.player.x}, y: {self.player.y}, angle: {self.player.angle}"
+        fov_val = f"FOV: {self.fov}"
+        furthest_wall = f"Furthest wall: {rays[0][3]}"
+        nearest_wall = f"Nearest wall: {rays[-1][3]}"
+        rays_val = f"Rays: {self.casted_rays}"
+        fps = f"FPS: {self.clock.get_fps()}"
+        self.screen.blit(
+            self.font.render(player_val, True, (255, 255, 255)), (10, 10)
+        )
+        self.screen.blit(
+            self.font.render(fov_val, True, (255, 255, 255)), (10, 30)
+        )
+        self.screen.blit(
+            self.font.render(furthest_wall, True, (255, 255, 255)), (10, 50)
+        )
+        self.screen.blit(
+            self.font.render(nearest_wall, True, (255, 255, 255)), (10, 70)
+        )
+        self.screen.blit(
+            self.font.render(rays_val, True, (255, 255, 255)), (10, 90)
+        )
+        self.screen.blit(
+            self.font.render(fps, True, (255, 255, 255)), (10, 110)
+        )
 
 
     def run(self):
@@ -140,16 +169,10 @@ class Raycaster:
                     self.player.x = nextX
                     self.player.y = nextY
 
-
-            self.cast_rays()
-
-            fps = f"FPS: {round(self.clock.get_fps())}"
-            self.screen.blit(
-                pygame.font.SysFont("comicsans", 16).render(
-                    str(fps), True, (255, 255, 255)
-                ),
-                (0, 0),
-            )
+            rays = self.cast_rays()
+            self.load_walls(rays)
+            if keys[pygame.K_x]:
+                self.debug_screen(rays)
 
             pygame.display.flip()
             self.clock.tick(120)
