@@ -53,14 +53,19 @@ class Raycaster:
             
             start_angle += self.fov / self.casted_rays
             cdep = depth * self.STEPS
-            color = 255 / ((1 + cdep * cdep * 0.0001))
+            color = list(self.pxData[int(x)][int(y)])
+            color_dep = []
+            for c in color:
+                cc = c / ((1 + cdep * cdep * 0.0001))
+                color_dep.append(cc)
+            # color_dep = (255 / ((1 + cdep * cdep * 0.0001)), 255 / ((1 + cdep * cdep * 0.0001)), 255 / ((1 + cdep * cdep * 0.0001)))
 
             depth *= math.cos(self.player.angle - start_angle)
             wall_height = 21000 / (depth)
 
             pygame.draw.rect(
                 self.screen,
-                (color, color, color),
+                tuple(color_dep),
                 (
                     ray * SCALE,
                     (640 / 2) - wall_height / 2,
