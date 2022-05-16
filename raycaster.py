@@ -21,7 +21,6 @@ class Raycaster:
         self.running = True
         self.TILESIZE = 32
         self.pxData = []
-        self.gameMap = []
         self.player = player
 
         self.fov = fov * math.pi / 180
@@ -32,6 +31,7 @@ class Raycaster:
         self.img = Image.open(mapFile)
         self.img = self.img.convert("RGB")
         self.background = pygame.image.load(background)
+        self.gamemap = pygame.image.load(mapFile)
 
     def loadMap(self):
         for i in range(640):
@@ -43,17 +43,27 @@ class Raycaster:
         start_angle = self.player.angle - self.fov / 2
         rays = []
         SCALE = (640) / self.casted_rays
+        # self.screen.blit(self.gamemap, (0,0))
+
         for ray in range(self.casted_rays):
             for depth in range(int(self.max_depth / self.STEPS)):
                 x = self.player.x - math.sin(start_angle) * (depth * self.STEPS)
                 y = self.player.y + math.cos(start_angle) * (depth * self.STEPS)
-                if self.pxData[int(x)][int(y)] != (0, 0, 0):
+                if x < 0:
+                    x = x + 640
+                if y < 0:
+                    y = y + 640
+                if x > 639:
+                    x = x - 640
+                if y > 639:
+                    y = y - 640
+                if self.pxData[int(x)%640][int(y)%640] != (0, 0, 0):
                     break
             depth += 0.0001
             
             start_angle += self.fov / self.casted_rays
             cdep = depth * self.STEPS
-            color = list(self.pxData[int(x)][int(y)])
+            color = list(self.pxData[int(x)%640][int(y)%640])
             color_dep = []
             for c in color:
                 cc = c / ((1 + cdep * cdep * 0.0001))
@@ -73,6 +83,14 @@ class Raycaster:
                     wall_height,
                 ),
             )
+            # pygame.draw.line(
+            #     self.screen,
+            #     (255, 255, 255),
+            #     (int(self.player.x), int(self.player.y)),
+            #     (int(x), int(y)),
+            #     1
+            # )
+
 
     def run(self):
         while self.running:
@@ -101,7 +119,16 @@ class Raycaster:
                     self.player.y
                     + math.cos(self.player.angle) * self.player.speed * delta_time
                 )
-                if pxData[int(nextX)][int(nextY)] == (0, 0, 0):
+                if nextX < 0:
+                    nextX = nextX + 640
+                if nextY < 0:
+                    nextY = nextY + 640
+                if nextX > 639:
+                    nextX = nextX - 640
+                if nextY > 639:
+                    nextY = nextY - 640
+
+                if pxData[int(nextX)%640][int(nextY)%640] == (0, 0, 0):
                     self.player.x = nextX
                     self.player.y = nextY
             if keys[pygame.K_s]:
@@ -113,9 +140,20 @@ class Raycaster:
                     self.player.y
                     + -math.cos(self.player.angle) * self.player.speed * delta_time
                 )
-                if pxData[int(nextX)][int(nextY)] ==  (0, 0, 0):
+                if nextX < 0:
+                    nextX = nextX + 640
+                if nextY < 0:
+                    nextY = nextY + 640
+                if nextX > 639:
+                    nextX = nextX - 640
+                if nextY > 639:
+                    nextY = nextY - 640
+                if pxData[int(nextX)%640][int(nextY)%640] ==  (0, 0, 0):
                     self.player.x = nextX
                     self.player.y = nextY
+
+
+            self.cast_rays()
 
             fps = f"FPS: {round(self.clock.get_fps())}"
             self.screen.blit(
@@ -124,9 +162,6 @@ class Raycaster:
                 ),
                 (0, 0),
             )
-
-            pygame.draw.line(self.screen, (0, 0, 0), (639, 0), (639, 640), 3)
-            self.cast_rays()
 
             pygame.display.flip()
             self.clock.tick(120)
