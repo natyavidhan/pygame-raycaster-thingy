@@ -14,7 +14,7 @@ class Player:
         self.speed = 3
 
 class Raycaster:
-    def __init__(self, mapFile, player, fov=90, background="background.png"):
+    def __init__(self, mapFile, player, fov=90, background="./raycaster/background.png"):
         self.screen = pygame.display.set_mode((640, 640))
         pygame.display.set_caption("Pygame Raycaster")
         self.clock = pygame.time.Clock()

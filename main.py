@@ -1,4 +1,4 @@
-from raycaster import Raycaster, Player
+from raycaster.raycaster import Raycaster, Player
 
 
 player = Player(75, 75)
