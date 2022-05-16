@@ -1,6 +1,5 @@
 import pygame, math
 from PIL import Image
-from numpy import interp
 
 pygame.init()
 pygame.font.init()
@@ -77,12 +76,17 @@ class Raycaster:
 
             depth *= math.cos(self.player.angle - start_angle)
             wall_height = 21000 / (depth)
-
+            rays.append([wall_height, color_dep, ray])
+        #sort rays from shortest to longest
+        rays.sort(key=lambda x: x[0])
+        
+        for ray in range(self.casted_rays):
+            wall_height, color_dep, num = rays[ray]
             pygame.draw.rect(
                 self.screen,
                 tuple(color_dep),
                 (
-                    ray * SCALE,
+                    num * SCALE,
                     (self.height / 2) - wall_height / 2,
                     SCALE + 1,
                     wall_height,
