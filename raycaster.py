@@ -9,12 +9,16 @@ class Raycaster:
         self.map = []
         self.map_img = None
         self.player = player
+        self.clock = pygame.time.Clock()
 
     def load_map(self, map_file):
         img = Image.open(map_file)
         img = img.convert("RGBA")
         self.map = list(img.getdata())
         self.map_img = pygame.image.load(map_file)
+    
+    def valid_pos(self, pos):
+        return self.map[int(pos[1]) * self.map_img.get_width() + int(pos[0])] == (0, 0, 0, 0)
 
     def update(self):
         self.screen.blit(self.background, (0, 0))
