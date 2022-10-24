@@ -15,9 +15,9 @@ class Player:
 
 class Game:
     def __init__(self):
-        self.player = Player([10, 10], 0, 0.5)
+        self.player = Player([10, 10], 0, 1)
         self.raycaster = Raycaster((640, 320), self.player, fov=90)
-        self.raycaster.load_map("./assets/map.png")
+        self.raycaster.load_map("./assets/maze.png")
         self.running = True
         
 
@@ -38,9 +38,9 @@ class Game:
             if keys[pygame.K_s]:
                 new_pos = self.player.move(-self.player.speed * delta_time)
             if keys[pygame.K_a]:
-                self.player.angle += 0.5
+                self.player.angle -= 0.75 * delta_time
             if keys[pygame.K_d]:
-                self.player.angle -= 0.5
+                self.player.angle += 0.75 * delta_time
             
             if self.raycaster.valid_pos(new_pos):
                 self.player.pos = new_pos
